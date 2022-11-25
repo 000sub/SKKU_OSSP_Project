@@ -1,6 +1,6 @@
 {
-  "name": "BaekjoonHub",
-  "version": "1.0.0",
+  "name": "GPGen",
+  "version": "0.0.1",
   "private": true,
   "description": "Automatically integrate your BOJ submissions to GitHub",
   "scripts": {
