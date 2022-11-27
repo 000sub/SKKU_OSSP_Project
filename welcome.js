@@ -132,6 +132,7 @@ const linkRepo = (token, name) => {
     if (xhr.readyState === 4) {
       const res = JSON.parse(xhr.responseText);
       const bool = linkStatusCode(xhr.status, name);
+      
       if (xhr.status === 200) {
         // BUG FIX
         if (!bool) {
@@ -200,6 +201,59 @@ const unlinkRepo = () => {
   document.getElementById('commit_mode').style.display = 'none';
 };
 
+/* repository list 받아오기  */
+
+const linkRepoList = (token, name) => {
+    console.log(name);
+    const AUTHENTICATION_URL = `https://github.com/${name}?tab=repositories`;
+    var userAgent = window.navigator.userAgent;
+
+    var xmlHttp = new XMLHttpRequest();
+    let githubDocument;
+
+    xmlHttp.onreadystatechange = function () {
+    if (this.readyState === xmlHttp.DONE) {
+        if (this.status === 200) {
+        // do something with xmlHttp.responseText
+        //console.log(xmlHttp.responseText);
+        this.onload = () => {
+            githubDocument = this.responseXML;
+            console.log(this.responseXML);
+
+            function getRepoNmae (githubDocument) {
+                var tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
+                return Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
+
+
+            };
+
+            var repoList = getRepoNmae(githubDocument);
+            
+            // function getRepoName(githubDocument) {
+            //     var tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
+            //     return Array.prototype.map.call(tds, function(t) { return t.textContent; });
+            // }
+
+            //let repoList = githubDocument.getElementsByItemPropName("wb-break-all");
+            console.log(repoList);
+          }
+        } else {
+        // handle errors
+            console.log("error: ", this.status);
+        }
+    }
+    };
+        xmlHttp.open( "GET", AUTHENTICATION_URL);
+        //   xmlHttp.setRequestHeader('User-Agent', `${userAgent}`);
+        xmlHttp.responseType = "document";
+        xmlHttp.send(null);
+
+
+    
+
+
+};
+
 /* Check for value of select tag, Get Started disabled by default */
 
 $('#type').on('change', function () {
@@ -263,13 +317,16 @@ $('#hook_button').on('click', async () => {
 $("#fileupload").on("click", async () => {
     let token = await getToken();
     let hook = await getHook();
+    let username = hook.split("/")[0];
+    let temp = linkRepoList(token, username);
+    
     let code = "<html><head></head></html>";
     let readme = "readme data";
     let dir = "src";
     let fname = "index.html";
     let cm = "test1";
     let cb = function(){console.log("hi")};
-    console.log(token, hook);
+    console.log(token, hook); //hook: username/linked repository
 
 
     upload(token, hook, code, readme, dir, fname, cm, cb);
