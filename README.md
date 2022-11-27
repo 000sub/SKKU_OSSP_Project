@@ -1,7 +1,7 @@
 <h1 align="center">
   <img src="assets/GPGen_thumbnail.png" alt="GPGen - Automatically generate profile based on GitHub." width="400">
   <br>
-    <h3 style = "font-family: times, serif">GPGen - Automatically generate profile based on GitHub.<h3>
+    <h3 style = "family-font:Times New Roman; text-align:center", Times, seriff">GPGen - Automatically generate profile based on GitHub.<h3>
   <br>
   <br>
 </h1>
