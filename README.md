@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="assets/thumbnail.png" alt="GPGen - Automatically generate profile based on GitHub." width="400">
+  <img src="assets/GPGen_thumbnail.png" alt="GPGen - Automatically generate profile based on GitHub." width="400">
   <br>
   GPGen - Automatically generate profile based on GitHub.
   <br>
