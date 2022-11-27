@@ -6,6 +6,7 @@ const repositoryName = () => {
   return $('#name').val().trim();
 };
 
+
 /* Status codes for creating of repo */
 
 const statusCode = (res, status, name) => {
@@ -64,7 +65,7 @@ const createRepo = (token, name) => {
   const AUTHENTICATION_URL = 'https://api.github.com/user/repos';
   let data = {
     name,
-    private: true,
+    private: false,
     auto_init: true,
     description: 'This is a auto push repository for Baekjoon Online Judge created with [BaekjoonHub](https://github.com/BaekjoonHub/BaekjoonHub).',
   };
@@ -85,6 +86,35 @@ const createRepo = (token, name) => {
   xhr.open('POST', AUTHENTICATION_URL, true);
   xhr.setRequestHeader('Authorization', `token ${token}`);
   xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  xhr.send(data);
+};
+
+const publishRepo = (token, hook) => {
+  const AUTHENTICATION_URL = `https://api.github.com/repos/${hook}/pages`;
+  let data = {
+    source: {
+      branch: 'main',
+      path: '/',
+    },
+  };
+  data = JSON.stringify(data);
+
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener('readystatechange', function () {
+    if (xhr.readyState === 4) {
+      statusCode(JSON.parse(xhr.responseText), xhr.status, name);
+    }
+  });
+
+  stats = {};
+  stats.version = chrome.runtime.getManifest().version;
+  stats.submission = {};
+  chrome.storage.local.set({ stats });
+
+  xhr.open('POST', AUTHENTICATION_URL, true);
+  xhr.setRequestHeader('Authorization', `token ${token}`);
+  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+
   xhr.send(data);
 };
 
@@ -272,9 +302,27 @@ $("#fileupload").on("click", async () => {
     console.log(token, hook);
 
 
-    upload(token, hook, code, readme, dir, fname, cm, cb);
-})
+    await upload(token, hook, code, readme, dir, fname, cm, cb);
 
+    alert("Success to create your profile repo.");
+
+});
+
+$("#deploy").on("click", async () => {
+    let token = await getToken();
+    let hook = await getHook();
+    let code = "<html><head></head></html>";
+    let readme = "readme data";
+    let dir = "src";
+    let fname = "index.html";
+    let cm = "test1";
+    let cb = function(){console.log("hi")};
+    console.log(token, hook);
+
+
+    publishRepo(token, hook);
+
+});
 $('#unlink a').on('click', () => {
   unlinkRepo();
   $('#unlink').hide();
