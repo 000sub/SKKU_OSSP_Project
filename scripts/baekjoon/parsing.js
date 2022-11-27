@@ -107,27 +107,6 @@ function makeDetailMessageAndReadme(data) {
   };
 }
 
-/*
-  현재 로그인된 유저를 파싱합니다.
-*/
-function findUsername() {
-  const el = document.querySelector('a.username');
-  if (isNull(el)) return null;
-  const username = el?.innerText?.trim();
-  if (isEmpty(username)) return null;
-  return username;
-}
-
-/*
-  유저 정보 페이지에서 유저 이름을 파싱합니다.
-*/
-function findUsernameOnUserInfoPage() {
-  const el = document.querySelector('div.page-header > h1');
-  if (isNull(el)) return null;
-  const username = el.textContent.trim();
-  if (isEmpty(username)) return null;
-  return username;
-}
 
 /*
   결과 테이블의 존재 여부를 확인합니다.

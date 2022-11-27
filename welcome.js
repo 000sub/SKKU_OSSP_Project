@@ -211,7 +211,7 @@ $('#type').on('change', function () {
   }
 });
 
-$('#hook_button').on('click', () => {
+$('#hook_button').on('click', async () => {
   /* on click should generate: 1) option 2) repository name */
   if (!option()) {
     $('#error').text('No option selected - Pick an option from dropdown menu below that best suits you!');
@@ -255,8 +255,25 @@ $('#hook_button').on('click', () => {
         });
       }
     });
+
+    
   }
 });
+
+$("#fileupload").on("click", async () => {
+    let token = await getToken();
+    let hook = await getHook();
+    let code = "<html><head></head></html>";
+    let readme = "readme data";
+    let dir = "src";
+    let fname = "index.html";
+    let cm = "test1";
+    let cb = function(){console.log("hi")};
+    console.log(token, hook);
+
+
+    upload(token, hook, code, readme, dir, fname, cm, cb);
+})
 
 $('#unlink a').on('click', () => {
   unlinkRepo();
