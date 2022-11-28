@@ -201,41 +201,31 @@ const unlinkRepo = () => {
   document.getElementById('commit_mode').style.display = 'none';
 };
 
+
 /* repository list 받아오기  */
 
-const linkRepoList = (token, name) => {
-    console.log(name);
-    const AUTHENTICATION_URL = `https://github.com/${name}?tab=repositories`;
-    var userAgent = window.navigator.userAgent;
+//pinned 기준 repository
+async function getPinnedRepoList(name){
+    return new Promise((resolve, reject) => {
+    const AUTHENTICATION_URL = `https://github.com/${name}`;
 
     var xmlHttp = new XMLHttpRequest();
-    let githubDocument;
+    let githubMainDocument;
+    var pinnedList = [];
 
     xmlHttp.onreadystatechange = function () {
     if (this.readyState === xmlHttp.DONE) {
         if (this.status === 200) {
-        // do something with xmlHttp.responseText
-        //console.log(xmlHttp.responseText);
         this.onload = () => {
-            githubDocument = this.responseXML;
-            console.log(this.responseXML);
+            githubMainDocument = this.responseXML;
 
-            function getRepoNmae (githubDocument) {
-                var tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
-                return Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
-
-
-            };
-
-            var repoList = getRepoNmae(githubDocument);
-            
-            // function getRepoName(githubDocument) {
-            //     var tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
-            //     return Array.prototype.map.call(tds, function(t) { return t.textContent; });
-            // }
-
-            //let repoList = githubDocument.getElementsByItemPropName("wb-break-all");
-            console.log(repoList);
+            if (githubMainDocument.querySelector('div.js-pinned-items-reorder-container')){
+                var tds = githubMainDocument.querySelectorAll('span.repo');
+                pinnedList = Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
+                resolve(pinnedList);
+            }
+            else resolve(pinnedList);
+        
           }
         } else {
         // handle errors
@@ -244,15 +234,91 @@ const linkRepoList = (token, name) => {
     }
     };
         xmlHttp.open( "GET", AUTHENTICATION_URL);
-        //   xmlHttp.setRequestHeader('User-Agent', `${userAgent}`);
         xmlHttp.responseType = "document";
         xmlHttp.send(null);
+    });
+}
 
+//last commit 기준 repository 
 
-    
+async function getCommitRepoList(name, commitListLength, pinnedList){ 
+    return new Promise((resolve, reject) => {
+    const AUTHENTICATION_URL = `https://github.com/${name}?tab=repositories`;
 
+    var xmlHttp = new XMLHttpRequest();
+    let githubDocument;
+    var repoList;
 
+    xmlHttp.onreadystatechange = function () {
+    if (this.readyState === xmlHttp.DONE) {
+        if (this.status === 200) {
+        this.onload = () => {
+            githubDocument = this.responseXML;
+            var tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
+            repoList = Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
+
+            if(commitListLength > 0) pinnedList.forEach(pinnedElement => {
+                repoList = repoList.filter((item) => item != pinnedElement);
+            });
+            //console.log(repoList.slice(0, commitListLength));
+            resolve(repoList.slice(0, commitListLength));
+          }
+        } else {
+        // handle errors
+            console.log("error: ", this.status);
+        }
+    }
+    };
+        xmlHttp.open( "GET", AUTHENTICATION_URL);
+        xmlHttp.responseType = "document";
+        xmlHttp.send(null);
+    });
 };
+
+//repository 별로 readme 값 전달
+async function getRepoReadme(name, repoList){
+    return new Promise((resolve, reject) => {
+
+    let totalRepoInfo = [];
+
+    repoList.forEach((repoName, index) => {
+        const AUTHENTICATION_URL = `https://github.com/${name}/${repoName}#readme`;
+        var xmlHttp = new XMLHttpRequest();
+        let githubDocument;
+
+        xmlHttp.onreadystatechange = function () {
+            if (this.readyState === xmlHttp.DONE) {
+                if (this.status === 200) { //readme file 존재 
+                    this.onload = () => {
+                        githubDocument = this.responseXML;
+                        //console.log(githubDocument);
+
+                        /* tag까지 같이 있는 형태 */
+                        var readmeTxt = githubDocument.querySelector('article.markdown-body');
+
+                        /* text만 있는 형태 */
+                        //var readmeTxt = githubDocument.querySelector('article.markdown-body').textContent;
+                        const repoInfo = { [repoName]: readmeTxt};
+                        totalRepoInfo.push(repoInfo);
+                    }
+                }
+                if (this.status === 404){
+                    console.log(`${repoName} repo has no readme docs`);
+                    const repoInfo = { [repoName]: [repoName]};
+                    totalRepoInfo.push(repoInfo);
+                }   
+            }
+        };
+        xmlHttp.open( "GET", AUTHENTICATION_URL);
+        xmlHttp.responseType = "document";
+        xmlHttp.send(null);
+    });
+
+    resolve(totalRepoInfo);
+    });
+
+}
+
 
 /* Check for value of select tag, Get Started disabled by default */
 
@@ -318,7 +384,16 @@ $("#fileupload").on("click", async () => {
     let token = await getToken();
     let hook = await getHook();
     let username = hook.split("/")[0];
-    let temp = linkRepoList(token, username);
+    let pinnedList = await getPinnedRepoList(username);
+    let commitListLength = 5 - pinnedList.length;
+    let commitList = await getCommitRepoList(username, commitListLength, pinnedList);
+    let repoNameList = pinnedList.concat(commitList);
+
+    console.log(repoNameList);
+    let repoInfo = await getRepoReadme(username, repoNameList); 
+    console.log(repoInfo);
+
+
     
     let code = "<html><head></head></html>";
     let readme = "readme data";
@@ -329,7 +404,7 @@ $("#fileupload").on("click", async () => {
     console.log(token, hook); //hook: username/linked repository
 
 
-    upload(token, hook, code, readme, dir, fname, cm, cb);
+    //upload(token, hook, code, readme, dir, fname, cm, cb);
 })
 
 $('#unlink a').on('click', () => {
