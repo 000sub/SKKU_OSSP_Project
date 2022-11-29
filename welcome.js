@@ -162,6 +162,7 @@ const linkRepo = (token, name) => {
     if (xhr.readyState === 4) {
       const res = JSON.parse(xhr.responseText);
       const bool = linkStatusCode(xhr.status, name);
+      
       if (xhr.status === 200) {
         // BUG FIX
         if (!bool) {
@@ -230,6 +231,125 @@ const unlinkRepo = () => {
   document.getElementById('commit_mode').style.display = 'none';
 };
 
+
+/* repository list 받아오기  */
+
+//pinned 기준 repository
+async function getPinnedRepoList(name){
+    return new Promise((resolve, reject) => {
+    const AUTHENTICATION_URL = `https://github.com/${name}`;
+
+    var xmlHttp = new XMLHttpRequest();
+    let githubMainDocument;
+    var pinnedList = [];
+
+    xmlHttp.onreadystatechange = function () {
+    if (this.readyState === xmlHttp.DONE) {
+        if (this.status === 200) {
+        this.onload = () => {
+            githubMainDocument = this.responseXML;
+
+            if (githubMainDocument.querySelector('div.js-pinned-items-reorder-container')){
+                var tds = githubMainDocument.querySelectorAll('span.repo');
+                pinnedList = Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
+                resolve(pinnedList);
+            }
+            else resolve(pinnedList);
+        
+          }
+        } else {
+        // handle errors
+            console.log("error: ", this.status);
+        }
+    }
+    };
+        xmlHttp.open( "GET", AUTHENTICATION_URL);
+        xmlHttp.responseType = "document";
+        xmlHttp.send(null);
+    });
+}
+
+//last commit 기준 repository 
+
+async function getCommitRepoList(name, commitListLength, pinnedList){ 
+    return new Promise((resolve, reject) => {
+    const AUTHENTICATION_URL = `https://github.com/${name}?tab=repositories`;
+
+    var xmlHttp = new XMLHttpRequest();
+    let githubDocument;
+    var repoList;
+
+    xmlHttp.onreadystatechange = function () {
+    if (this.readyState === xmlHttp.DONE) {
+        if (this.status === 200) {
+        this.onload = () => {
+            githubDocument = this.responseXML;
+            var tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
+            repoList = Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
+
+            if(commitListLength > 0) pinnedList.forEach(pinnedElement => {
+                repoList = repoList.filter((item) => item != pinnedElement);
+            });
+            //console.log(repoList.slice(0, commitListLength));
+            resolve(repoList.slice(0, commitListLength));
+          }
+        } else {
+        // handle errors
+            console.log("error: ", this.status);
+        }
+    }
+    };
+        xmlHttp.open( "GET", AUTHENTICATION_URL);
+        xmlHttp.responseType = "document";
+        xmlHttp.send(null);
+    });
+};
+
+//repository 별로 readme 값 전달
+async function getRepoReadme(name, repoList){
+    return new Promise((resolve, reject) => {
+
+    let totalRepoInfo = [];
+
+    repoList.forEach((repoName, index) => {
+        const AUTHENTICATION_URL = `https://github.com/${name}/${repoName}#readme`;
+        var xmlHttp = new XMLHttpRequest();
+        let githubDocument;
+
+        xmlHttp.onreadystatechange = function () {
+            if (this.readyState === xmlHttp.DONE) {
+                if (this.status === 200) { //readme file 존재 
+                    this.onload = () => {
+                        githubDocument = this.responseXML;
+                        //console.log(githubDocument);
+
+                        /* tag까지 같이 있는 형태 */
+                        var readmeTxt = githubDocument.querySelector('article.markdown-body');
+
+                        /* text만 있는 형태 */
+                        //var readmeTxt = githubDocument.querySelector('article.markdown-body').textContent;
+                        const repoInfo = { [repoName]: readmeTxt};
+                        totalRepoInfo.push(repoInfo);
+                    }
+                }
+                if (this.status === 404){
+                    console.log(`${repoName} repo has no readme docs`);
+                    const repoInfo = { [repoName]: [repoName]};
+                    totalRepoInfo.push(repoInfo);
+                }   
+            }
+        };
+        xmlHttp.open( "GET", AUTHENTICATION_URL);
+        xmlHttp.responseType = "document";
+        xmlHttp.send(null);
+    });
+
+    resolve(totalRepoInfo);
+    });
+
+}
+
+
 /* Check for value of select tag, Get Started disabled by default */
 
 $('#type').on('change', function () {
@@ -293,19 +413,28 @@ $('#hook_button').on('click', async () => {
 $("#fileupload").on("click", async () => {
     let token = await getToken();
     let hook = await getHook();
+    let username = hook.split("/")[0];
+    let pinnedList = await getPinnedRepoList(username);
+    let commitListLength = 5 - pinnedList.length;
+    let commitList = await getCommitRepoList(username, commitListLength, pinnedList);
+    let repoNameList = pinnedList.concat(commitList);
+
+    console.log(repoNameList);
+    let repoInfo = await getRepoReadme(username, repoNameList); 
+    console.log(repoInfo);
+
+
+    
     let code = "<html><head></head></html>";
     let readme = "readme data";
     let dir = "src";
     let fname = "index.html";
     let cm = "test1";
     let cb = function(){console.log("hi")};
-    console.log(token, hook);
-
+    console.log(token, hook); //hook: username/linked repository
 
     await upload(token, hook, code, readme, dir, fname, cm, cb);
-
     alert("Success to create your profile repo.");
-
 });
 
 $("#deploy").on("click", async () => {
@@ -317,12 +446,9 @@ $("#deploy").on("click", async () => {
     let fname = "index.html";
     let cm = "test1";
     let cb = function(){console.log("hi")};
-    console.log(token, hook);
-
-
     publishRepo(token, hook);
-
 });
+
 $('#unlink a').on('click', () => {
   unlinkRepo();
   $('#unlink').hide();
