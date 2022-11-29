@@ -20,10 +20,9 @@
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="https://github.com/flaxinger"><img src="https://avatars.githubusercontent.com/u/70012548?v=4?s=100" width="100px;" alt="flaxinger"/><br /><sub><b>flaxinger</b></sub></a><br /><a href="#maintenance-flaxinger" title="Maintenance">🚧</a></td>
-      <td align="center"><a href="https://github.com/getCurrentThread"><img src="https://avatars.githubusercontent.com/u/31976959?v=4?s=100" width="100px;" alt="getCurrentThread"/><br /><sub><b>getCurrentThread</b></sub></a><br /><a href="#maintenance-getCurrentThread" title="Maintenance">🚧</a></td>
-      <td align="center"><a href="https://github.com/doxxx93"><img src="https://avatars.githubusercontent.com/u/51396905?v=4?s=100" width="100px;" alt="Doxxx93"/><br /><sub><b>Doxxx93</b></sub></a><br /><a href="#talk-doxxx93" title="Talks">📢</a></td>
-      <td align="center"><a href="https://xvezda.com"><img src="https://avatars.githubusercontent.com/u/9497404?v=4?s=100" width="100px;" alt="Xvezda"/><br /><sub><b>Xvezda</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=Xvezda" title="Documentation">📖</a></td>
+      <td align="center"><a href="https://github.com/000sub"><img src="https://avatars.githubusercontent.com/u/85350805?v=4?s=100" width="100px;" alt="000sub"/><br /><sub><b>000sub</b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/taeyangk0331"><img src="https://avatars.githubusercontent.com/u/56949410?v=4?s=100" width="100px;" alt="taeyangk0331"/><br /><sub><b>taeyangk0331</b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/Mminy62"><img src="https://avatars.githubusercontent.com/u/66752398?v=4?s=100" width="100px;" alt="Doxxx93"/><br /><sub><b>Mminy62</b></sub></a><br /></td>
   </tbody>
 </table>
 
@@ -49,7 +48,7 @@
 ## What is GPGen?
 
 <p>
-  Gpgen desc<br/>
+  GPGen(Github Profile Generator)는 사용자의 
 </p>
 
 <br />
@@ -75,10 +74,9 @@ git clone (url)
 ## 설치 및 연동(How to set it up)
 
 <ol>
-  <li>크롬에서 설치 후 우측 상단의 popup 버튼을 클릭합니다.</li>
+  <li>크롬 > 도구 더보기 > 확장프로그램 > 개발자 모드 > 압축해제된 확장 프로그램을 로드합니다</li>
   <li>"Authorize with GitHub" 버튼을 누르면 Repository 연동 화면이 표시됩니다.</li>
-  <li>신규 혹은 기존의 Repository를 선택하면 BaekjoonHub과 연동이 완료됩니다
-    (기본값은 private으로 되어있습니다).</li>
+  <li>신규 혹은 기존의 Repository를 선택하면 BaekjoonHub과 연동이 완료됩니다.</li>
   <li>이후 제출화면이 감지되면 자동으로 업로드됩니다</li>
 </ol>
 <br />
@@ -91,7 +89,7 @@ git clone (url)
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/BaekjoonHub/BaekjoonHub/issues" title="버그신고">
+      <a href="https://github.com/taeyangk0331/SKKU_OSSP_Project/issues" title="버그신고">
           <img src="./assets/readme_icons/bug.png" width="100" height="100">
       </a><br/><sub><b>버그 신고</b></sub>
     </td>
