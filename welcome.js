@@ -331,43 +331,41 @@ async function getCommitRepoList(name, commitListLength, pinnedList){
     });
 };
 
-//repository 별로 readme 값 전달
-async function getRepoReadme(name, repoList){
+//repository 별로 description 값 전달
+async function getReposDesc(username, repoList){
+    let token = await getToken();
     return new Promise((resolve, reject) => {
 
     let totalRepoInfo = [];
+    
 
     repoList.forEach((repoName, index) => {
-        const AUTHENTICATION_URL = `https://github.com/${name}/${repoName}#readme`;
-        var xmlHttp = new XMLHttpRequest();
-        let githubDocument;
+        const AUTHENTICATION_URL = `https://api.github.com/repos/${username}/${repoName}`;
+        const xhr = new XMLHttpRequest();
 
-        xmlHttp.onreadystatechange = function () {
-            if (this.readyState === xmlHttp.DONE) {
-                if (this.status === 200) { //readme file 존재 
-                    this.onload = () => {
-                        githubDocument = this.responseXML;
-                        //console.log(githubDocument);
-
-                        /* tag까지 같이 있는 형태 */
-                        var readmeTxt = githubDocument.querySelector('article.markdown-body');
-
-                        /* text만 있는 형태 */
-                        //var readmeTxt = githubDocument.querySelector('article.markdown-body').textContent;
-                        const repoInfo = { [repoName]: readmeTxt};
-                        totalRepoInfo.push(repoInfo);
-                    }
-                }
-                if (this.status === 404){
-                    console.log(`${repoName} repo has no readme docs`);
-                    const repoInfo = { [repoName]: [repoName]};
+        xhr.addEventListener('readystatechange', function () {
+            if (xhr.readyState === 4) {
+                const res = JSON.parse(xhr.responseText);
+    
+                if (xhr.status === 200) {
+                    console.log(res.description);
+                    let repoInfo = {};
+                    repoInfo["reponame"] = repoName;
+                    repoInfo["desc"] = res.description;
                     totalRepoInfo.push(repoInfo);
-                }   
+                }
             }
-        };
-        xmlHttp.open( "GET", AUTHENTICATION_URL);
-        xmlHttp.responseType = "document";
-        xmlHttp.send(null);
+        });
+
+        stats = {};
+        stats.version = chrome.runtime.getManifest().version;
+        stats.submission = {};
+        chrome.storage.local.set({ stats });
+
+        xhr.open( "GET", AUTHENTICATION_URL, true);
+        xhr.setRequestHeader('Authorization', `token ${token}`);
+        xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+        xhr.send(null);
     });
 
     resolve(totalRepoInfo);
@@ -446,9 +444,8 @@ $("#fileupload").on("click", async () => {
     let repoNameList = pinnedList.concat(commitList);
 
     console.log(repoNameList);
-    let repoInfo = await getRepoReadme(username, repoNameList); 
+    let repoInfo = await getReposDesc(username, repoNameList); 
     console.log(repoInfo);
-    getRepoDesc(token, hook);
 
 
     
