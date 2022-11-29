@@ -118,6 +118,32 @@ const publishRepo = (token, hook) => {
   xhr.send(data);
 };
 
+const getRepoDesc = (token, hook) => {
+    const AUTHENTICATION_URL = `https://api.github.com/repos/${hook}`;
+ 
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener('readystatechange', function () {
+        if (xhr.readyState === 4) {
+            const res = JSON.parse(xhr.responseText);
+
+            if (xhr.status === 200) {
+                console.log(res.description);
+            }
+        }
+    });
+
+    stats = {};
+    stats.version = chrome.runtime.getManifest().version;
+    stats.submission = {};
+    chrome.storage.local.set({ stats });
+
+    xhr.open('GET', AUTHENTICATION_URL, true);
+    xhr.setRequestHeader('Authorization', `token ${token}`);
+    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+
+    xhr.send(null);
+};
+
 /* Status codes for linking of repo */
 const linkStatusCode = (status, name) => {
   let bool = false;
@@ -422,6 +448,7 @@ $("#fileupload").on("click", async () => {
     console.log(repoNameList);
     let repoInfo = await getRepoReadme(username, repoNameList); 
     console.log(repoInfo);
+    getRepoDesc(token, hook);
 
 
     
@@ -433,8 +460,8 @@ $("#fileupload").on("click", async () => {
     let cb = function(){console.log("hi")};
     console.log(token, hook); //hook: username/linked repository
 
-    await upload(token, hook, code, readme, dir, fname, cm, cb);
-    alert("Success to create your profile repo.");
+    //await upload(token, hook, code, readme, dir, fname, cm, cb);
+    //alert("Success to create your profile repo.");
 });
 
 $("#deploy").on("click", async () => {
