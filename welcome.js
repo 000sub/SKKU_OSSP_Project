@@ -193,16 +193,17 @@ const publishRepo = (token, hook) => {
   xhr.send(data);
 };
 
-const getRepoDesc = (token, hook) => {
+const getRepoDesc = async (token, hook) => {
     const AUTHENTICATION_URL = `https://api.github.com/repos/${hook}`;
  
     const xhr = new XMLHttpRequest();
     xhr.addEventListener('readystatechange', function () {
-        if (xhr.readyState === 4) {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
             const res = JSON.parse(xhr.responseText);
 
             if (xhr.status === 200) {
                 console.log(res.description);
+                return res.description;
             }
         }
     });
@@ -440,7 +441,7 @@ async function getCommitRepoList(name, commitListLength, pinnedList){
 //repository 별로 description 값 전달
 async function getReposDesc(username, repoList){
     let token = await getToken();
-    return new Promise( async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
     let totalRepoInfo = [];
     
@@ -539,9 +540,10 @@ $('#hook_button').on('click', async () => {
     
   }
 });
-
+let htmlcode;
 $("#fileupload").on("click", async () => {
-    let htmlcode;
+    
+    let repos;
     let token = await getToken();
     let hook = await getHook();
     let username = hook.split("/")[0];
@@ -550,10 +552,24 @@ $("#fileupload").on("click", async () => {
     let commitList = await getCommitRepoList(username, commitListLength, pinnedList);
     let repoNameList = pinnedList.concat(commitList);
 
-    console.log(repoNameList);
-    const repoInfo = await getReposDesc(username, repoNameList); 
+    const test = async() => {
+        const repoPromises = await getReposDesc(username, repoNameList);
+        repos = await repoPromises;    
+        
+    }
 
-    console.log(repoInfo.length);
+    test();
+    await setTimeout(()=>{
+        htmlcode = getHTML(username, repos);
+        upload(token, hook, htmlcode, readme, dir, "index.html", cm, cb);
+        upload(token, hook, getCSS(), readme, dir, "style.css", cm, cb);
+    }, 1000);
+  
+    
+    
+    console.log(htmlcode);
+
+    
 
 
 
