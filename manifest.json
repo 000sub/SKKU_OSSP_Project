@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "GPGen",
   "description": "Automatically generate profile based on your GitHub",
-  "homepage_url": "https://github.com/BaekjoonHub/BaekjoonHub",
+  "homepage_url": "https://github.com/taeyangk0331/SKKU_OSSP_Project",
   "version": "0.0.1",
   "author": "oss_team",
   "action": {
@@ -16,15 +16,6 @@
   },
   "background": {
     "service_worker": "scripts/background.js"
-  },
-  "declarative_net_request": {
-    "rule_resources": [
-      {
-        "id": "ruleset",
-        "enabled": true,
-        "path": "rules.json"
-      }
-    ]
   },
   "permissions": [
     "unlimitedStorage",
@@ -56,13 +47,7 @@
         "scripts/Github.js",
         "scripts/authorize.js",
         "scripts/storage.js",
-        "scripts/enable.js",
-        "scripts/baekjoon/variables.js",
-        "scripts/baekjoon/storage.js",
-        "scripts/baekjoon/parsing.js",
-        "scripts/baekjoon/util.js",
-        "scripts/baekjoon/uploadfunctions.js",
-        "scripts/baekjoon/baekjoon.js"
+        "scripts/uploadfunctions.js"
       ]
     }
   ],
@@ -75,31 +60,6 @@
         "scripts/util.js",
         "scripts/Github.js",
         "scripts/authorize.js"
-      ],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://www.acmicpc.net/*"
-      ],
-      "css": [
-        "css/baekjoon/inject.css"
-      ],
-      "js": [
-        "library/sha1.min.js",
-        "library/jszip.min.js",
-        "library/FileSaver.min.js",
-        "scripts/util.js",
-        "scripts/Github.js",
-        "scripts/authorize.js",
-        "scripts/storage.js",
-        "scripts/enable.js",
-        "scripts/baekjoon/variables.js",
-        "scripts/baekjoon/storage.js",
-        "scripts/baekjoon/parsing.js",
-        "scripts/baekjoon/util.js",
-        "scripts/baekjoon/uploadfunctions.js",
-        "scripts/baekjoon/baekjoon.js"
       ],
       "run_at": "document_idle"
     }
