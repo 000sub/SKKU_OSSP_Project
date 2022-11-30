@@ -2,6 +2,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="css/welcome.css" />
+    <link rel="stylesheet" href="css/baekjoon/inject.css" />
     <script src="/library/jquery-3.3.1.min.js"></script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet" />
@@ -67,11 +68,12 @@
       <!-- Show stats -->
       <div style="display: none" id="commit_mode" class="ui grid container">
         <div class="wide center aligned column">
-          <br /><br /><br />
-          <div class="ui inverted large header">Want more features? 
-            <button id="fileupload">make your profile</button>
-            <button id="deploy">deploy your repo</button>
-          </div>
+          <br /><br />
+          <br />
+          <div class="ui inverted large header">Step 1. <button id="fileupload">make your profile</button></div>
+          <div class="ui inverted large header">Step 2. <button id="deploy">deploy your repo</button></div>
+          <div class="ui inverted large header">Step 3. <button id="geturl">get your profile url</button> </div>
+          <div class="ui inverted large header"><a id="display_url" target="_blank"></a></div>
         </div>
       </div>
 
