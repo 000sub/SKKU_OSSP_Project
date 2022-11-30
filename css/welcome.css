@@ -58,3 +58,10 @@ a {
   color: white !important;
   cursor: pointer;
 }
+
+button {
+    background-color: #363636;
+    color: white;
+    border: 0;
+    cursor: pointer;
+}

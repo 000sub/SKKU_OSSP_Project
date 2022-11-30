@@ -6,7 +6,82 @@ const repositoryName = () => {
   return $('#name').val().trim();
 };
 
+const getHTML = (username, repoList) => {
+    console.log("inside getHTML func");
+    console.log(repoList);
+    return `<!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+      </head>
+      <body>
+        <div id="header_wrap" class="container-sm shadow p-1 float-xl-start bg-light rounded-4">
+          <img src="photo.png" id="profile_photo">
+          <p><i class="bi bi-person-circle"></i>${username}</p>
+          <p><i class="bi bi-building"></i> Undergraduate Student in SKKU</p>
+          <p><a class="external text-success" href="https://github.com/${username}" target="_blank"><i class="bi bi-github"></i> My Github</a></p>
+          <p><i class="bi bi-envelope"></i></p>
+        </div>
+    
+        <div class="container-sm float-xl-end mt-5">
+          <h2>My Github Portfolio</h2>
+          <h4>${repoList[0]['reponame']}</h4>
+          <p>${repoList[0]['desc']}</p>
 
+          <h4>${repoList[1]['reponame']}</h4>
+          <p>${repoList[1]['desc']}</p>
+
+          <h4>${repoList[2]['reponame']}</h4>
+          <p>${repoList[2]['desc']}</p>
+
+          <h4>${repoList[3]['reponame']}</h4>
+          <p>${repoList[3]['desc']}</p>
+
+          <h4>${repoList[4]['reponame']}</h4>
+          <p>${repoList[4]['desc']}</p>
+    
+          <br><hr><br>
+    
+          <h2>Interested in</h2>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Problem Solving</a></li>
+            <li class="list-group-item">Programming Languages</li>
+            <li class="list-group-item">Blockchain</li>
+            <li class="list-group-item">AI</li>
+            <li class="list-group-item"></li>
+          </ul>
+    
+    
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+      </body>
+    </html>
+    `
+};
+
+const getCSS = () => {
+    return `#header_wrap{
+        width: 450px;
+      }
+      
+      #profile_photo {
+        width: 100%;
+        border-radius: 20px;
+        margin-top: 10px;
+      }
+      
+      .container-sm {
+        max-width: 900px!important;
+      }
+      
+      .external{
+        text-decoration: none;
+      }`
+};
 /* Status codes for creating of repo */
 
 const statusCode = (res, status, name) => {
@@ -118,16 +193,17 @@ const publishRepo = (token, hook) => {
   xhr.send(data);
 };
 
-const getRepoDesc = (token, hook) => {
+const getRepoDesc = async (token, hook) => {
     const AUTHENTICATION_URL = `https://api.github.com/repos/${hook}`;
  
     const xhr = new XMLHttpRequest();
     xhr.addEventListener('readystatechange', function () {
-        if (xhr.readyState === 4) {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
             const res = JSON.parse(xhr.responseText);
 
             if (xhr.status === 200) {
                 console.log(res.description);
+                return res.description;
             }
         }
     });
@@ -143,6 +219,37 @@ const getRepoDesc = (token, hook) => {
 
     xhr.send(null);
 };
+
+const getPublishUrl = (token, hook) => {
+    return new Promise((resolve, reject ) => {
+        const AUTHENTICATION_URL = `https://api.github.com/repos/${hook}/pages`;
+ 
+        const xhr = new XMLHttpRequest();
+        xhr.addEventListener('readystatechange', function () {
+            if (xhr.readyState === 4) {
+                const res = JSON.parse(xhr.responseText);
+
+                if (xhr.status === 200) {
+                    console.log(res.html_url);
+
+                    resolve(res.html_url);
+                }
+            }
+        });
+
+        stats = {};
+        stats.version = chrome.runtime.getManifest().version;
+        stats.submission = {};
+        chrome.storage.local.set({ stats });
+
+        xhr.open('GET', AUTHENTICATION_URL, true);
+        xhr.setRequestHeader('Authorization', `token ${token}`);
+        xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+
+        xhr.send(null);
+    });
+    
+}
 
 /* Status codes for linking of repo */
 const linkStatusCode = (status, name) => {
@@ -265,9 +372,9 @@ async function getPinnedRepoList(name){
     return new Promise((resolve, reject) => {
     const AUTHENTICATION_URL = `https://github.com/${name}`;
 
-    var xmlHttp = new XMLHttpRequest();
+    let xmlHttp = new XMLHttpRequest();
     let githubMainDocument;
-    var pinnedList = [];
+    let pinnedList = [];
 
     xmlHttp.onreadystatechange = function () {
     if (this.readyState === xmlHttp.DONE) {
@@ -276,7 +383,7 @@ async function getPinnedRepoList(name){
             githubMainDocument = this.responseXML;
 
             if (githubMainDocument.querySelector('div.js-pinned-items-reorder-container')){
-                var tds = githubMainDocument.querySelectorAll('span.repo');
+                let tds = githubMainDocument.querySelectorAll('span.repo');
                 pinnedList = Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
                 resolve(pinnedList);
             }
@@ -301,16 +408,16 @@ async function getCommitRepoList(name, commitListLength, pinnedList){
     return new Promise((resolve, reject) => {
     const AUTHENTICATION_URL = `https://github.com/${name}?tab=repositories`;
 
-    var xmlHttp = new XMLHttpRequest();
+    let xmlHttp = new XMLHttpRequest();
     let githubDocument;
-    var repoList;
+    let repoList;
 
     xmlHttp.onreadystatechange = function () {
     if (this.readyState === xmlHttp.DONE) {
         if (this.status === 200) {
         this.onload = () => {
             githubDocument = this.responseXML;
-            var tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
+            let tds = githubDocument.querySelectorAll('h3.wb-break-all > a');
             repoList = Array.prototype.map.call(tds, function(t) { return t.textContent.trim(); });
 
             if(commitListLength > 0) pinnedList.forEach(pinnedElement => {
@@ -433,8 +540,10 @@ $('#hook_button').on('click', async () => {
     
   }
 });
-
+let htmlcode;
 $("#fileupload").on("click", async () => {
+    
+    let repos;
     let token = await getToken();
     let hook = await getHook();
     let username = hook.split("/")[0];
@@ -443,21 +552,37 @@ $("#fileupload").on("click", async () => {
     let commitList = await getCommitRepoList(username, commitListLength, pinnedList);
     let repoNameList = pinnedList.concat(commitList);
 
-    console.log(repoNameList);
-    let repoInfo = await getReposDesc(username, repoNameList); 
-    console.log(repoInfo);
+    const test = async() => {
+        const repoPromises = await getReposDesc(username, repoNameList);
+        repos = await repoPromises;    
+        
+    }
+
+    test();
+    await setTimeout(()=>{
+        htmlcode = getHTML(username, repos);
+        upload(token, hook, htmlcode, readme, dir, "index.html", cm, cb);
+        upload(token, hook, getCSS(), readme, dir, "style.css", cm, cb);
+    }, 1000);
+  
+    
+    
+    console.log(htmlcode);
+
+    
+
 
 
     
-    let code = "<html><head></head></html>";
+
     let readme = "readme data";
     let dir = "src";
-    let fname = "index.html";
     let cm = "test1";
     let cb = function(){console.log("hi")};
     console.log(token, hook); //hook: username/linked repository
 
-    //await upload(token, hook, code, readme, dir, fname, cm, cb);
+    //await upload(token, hook, htmlcode, readme, dir, "index.html", cm, cb);
+    //await upload(token, hook, getCSS(), readme, dir, "style.css", cm, cb);
     //alert("Success to create your profile repo.");
 });
 
@@ -471,6 +596,8 @@ $("#deploy").on("click", async () => {
     let cm = "test1";
     let cb = function(){console.log("hi")};
     publishRepo(token, hook);
+
+    $(this).css("color", "green");
 });
 
 $('#unlink a').on('click', () => {
@@ -478,6 +605,23 @@ $('#unlink a').on('click', () => {
   $('#unlink').hide();
   $('#success').text('Successfully unlinked your current git repo. Please create/link a new hook.');
 });
+
+$("#geturl").on("click", async () => {
+    let token = await getToken();
+    let hook = await getHook();
+    let code = "<html><head></head></html>";
+    let readme = "readme data";
+    let dir = "src";
+    let fname = "index.html";
+    let cm = "test1";
+    let cb = function(){console.log("hi")};
+    let url = await getPublishUrl(token, hook);
+
+    console.log(url);
+    $("#display_url").text(url);
+    $("#display_url").attr("href", url);
+});
+
 
 /* Detect mode type */
 chrome.storage.local.get('mode_type', (data) => {

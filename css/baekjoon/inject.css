@@ -5,13 +5,9 @@
 .BaekjoonHub_progress {
   display: inline-block;
   pointer-events: none;
-  width: 0.8em;
-  height: 0.8em;
-  border: 0.4em solid transparent;
-  border-color: #eee;
-  border-top-color: #3e67ec;
-  border-radius: 50%;
-  animation: loadingspin 1s linear infinite;
+  width: 2em;
+  height: 2em;
+  
 }
 @keyframes loadingspin {
   100% {
@@ -29,6 +25,15 @@
 }
 
 #BaekjoonHub_progress_elem.markuploaded {
+  display: inline-block;
+  transform: rotate(45deg);
+  height: 13px;
+  width: 5px;
+  border-bottom: 3px solid #78b13f;
+  border-right: 3px solid #78b13f;
+}
+
+.markuploaded {
   display: inline-block;
   transform: rotate(45deg);
   height: 13px;
