@@ -6,6 +6,7 @@ const repositoryName = () => {
   return $('#name').val().trim();
 };
 
+/* html and css code uploaded on Github */
 const getHTML = (username, repoList) => {
     console.log("inside getHTML func");
     console.log(repoList);
@@ -105,6 +106,7 @@ const getCSS = () => {
         text-decoration: none;
       }`
 };
+
 /* Status codes for creating of repo */
 
 const statusCode = (res, status, name) => {
@@ -143,7 +145,7 @@ const statusCode = (res, status, name) => {
       /* Change mode type to commit */
       chrome.storage.local.set({ mode_type: 'commit' }, () => {
         $('#error').hide();
-        $('#success').html(`Successfully created <a target="blank" href="${res.html_url}">${name}</a>. Start <a href="https://www.acmicpc.net/">BOJ</a>!`);
+        $('#success').html(`Successfully created <a target="blank" href="${res.html_url}">${name}</a>. Move onto next step!`);
         $('#success').show();
         $('#unlink').show();
         /* Show new layout */
@@ -159,13 +161,15 @@ const statusCode = (res, status, name) => {
   }
 };
 
+/* Interact with Github API */
+
 const createRepo = (token, name) => {
   const AUTHENTICATION_URL = 'https://api.github.com/user/repos';
   let data = {
     name,
     private: false,
     auto_init: true,
-    description: 'This is a auto push repository for Baekjoon Online Judge created with [BaekjoonHub](https://github.com/BaekjoonHub/BaekjoonHub).',
+    description: 'This is a auto push repository created with [GPGen](https://github.com/BaekjoonHub/BaekjoonHub).',
   };
   data = JSON.stringify(data);
 
@@ -273,120 +277,6 @@ const getPublishUrl = (token, hook) => {
     });
     
 }
-
-/* Status codes for linking of repo */
-const linkStatusCode = (status, name) => {
-  let bool = false;
-  switch (status) {
-    case 301:
-      $('#success').hide();
-      $('#error').html(`Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to BaekjoonHub. <br> This repository has been moved permenantly. Try creating a new one.`);
-      $('#error').show();
-      break;
-
-    case 403:
-      $('#success').hide();
-      $('#error').html(`Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to BaekjoonHub. <br> Forbidden action. Please make sure you have the right access to this repository.`);
-      $('#error').show();
-      break;
-
-    case 404:
-      $('#success').hide();
-      $('#error').html(`Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to BaekjoonHub. <br> Resource not found. Make sure you enter the right repository name.`);
-      $('#error').show();
-      break;
-
-    default:
-      bool = true;
-      break;
-  }
-  $('#unlink').show();
-  return bool;
-};
-
-/* 
-    Method for linking hook with an existing repository 
-    Steps:
-    1. Check if existing repository exists and the user has write access to it.
-    2. Link Hook to it (chrome Storage).
-*/
-const linkRepo = (token, name) => {
-  const AUTHENTICATION_URL = `https://api.github.com/repos/${name}`;
-
-  const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
-    if (xhr.readyState === 4) {
-      const res = JSON.parse(xhr.responseText);
-      const bool = linkStatusCode(xhr.status, name);
-      
-      if (xhr.status === 200) {
-        // BUG FIX
-        if (!bool) {
-          // unable to gain access to repo in commit mode. Must switch to hook mode.
-          /* Set mode type to hook */
-          chrome.storage.local.set({ mode_type: 'hook' }, () => {
-            console.log(`Error linking ${name} to BaekjoonHub`);
-          });
-          /* Set Repo Hook to NONE */
-          chrome.storage.local.set({ BaekjoonHub_hook: null }, () => {
-            console.log('Defaulted repo hook to NONE');
-          });
-
-          /* Hide accordingly */
-          document.getElementById('hook_mode').style.display = 'inherit';
-          document.getElementById('commit_mode').style.display = 'none';
-        } else {
-          /* Change mode type to commit */
-          /* Save repo url to chrome storage */
-          chrome.storage.local.set({ mode_type: 'commit', repo: res.html_url }, () => {
-            $('#error').hide();
-            $('#success').html(`Successfully linked <a target="blank" href="${res.html_url}">${name}</a> to BaekjoonHub. Start <a href="https://www.acmicpc.net/">BOJ</a> now!`);
-            $('#success').show();
-            $('#unlink').show();
-          });
-          /* Set Repo Hook */
-
-          stats = {};
-          stats.version = chrome.runtime.getManifest().version;
-          stats.submission = {};
-          chrome.storage.local.set({ stats });
-
-          chrome.storage.local.set({ BaekjoonHub_hook: res.full_name }, () => {
-            console.log('Successfully set new repo hook');
-            /* Get problems solved count */
-            chrome.storage.local.get('stats', (psolved) => {
-              const { stats } = psolved;
-            });
-          });
-          /* Hide accordingly */
-          document.getElementById('hook_mode').style.display = 'none';
-          document.getElementById('commit_mode').style.display = 'inherit';
-        }
-      }
-    }
-  });
-
-  xhr.open('GET', AUTHENTICATION_URL, true);
-  xhr.setRequestHeader('Authorization', `token ${token}`);
-  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  xhr.send();
-};
-
-const unlinkRepo = () => {
-  /* Set mode type to hook */
-  chrome.storage.local.set({ mode_type: 'hook' }, () => {
-    console.log(`Unlinking repo`);
-  });
-  /* Set Repo Hook to NONE */
-  chrome.storage.local.set({ BaekjoonHub_hook: null }, () => {
-    console.log('Defaulted repo hook to NONE');
-  });
-
-  /* Hide accordingly */
-  document.getElementById('hook_mode').style.display = 'inherit';
-  document.getElementById('commit_mode').style.display = 'none';
-};
-
 
 /* repository list 받아오기  */
 
@@ -500,8 +390,123 @@ async function getReposDesc(username, repoList){
 
     resolve(totalRepoInfo);
     });
-
 }
+
+/* Status codes for linking of repo */
+const linkStatusCode = (status, name) => {
+  let bool = false;
+  switch (status) {
+    case 301:
+      $('#success').hide();
+      $('#error').html(`Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to GPGen. <br> This repository has been moved permenantly. Try creating a new one.`);
+      $('#error').show();
+      break;
+
+    case 403:
+      $('#success').hide();
+      $('#error').html(`Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to GPGen. <br> Forbidden action. Please make sure you have the right access to this repository.`);
+      $('#error').show();
+      break;
+
+    case 404:
+      $('#success').hide();
+      $('#error').html(`Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to GPGen. <br> Resource not found. Make sure you enter the right repository name.`);
+      $('#error').show();
+      break;
+
+    default:
+      bool = true;
+      break;
+  }
+  $('#unlink').show();
+  return bool;
+};
+
+/* 
+    Method for linking hook with an existing repository 
+    Steps:
+    1. Check if existing repository exists and the user has write access to it.
+    2. Link Hook to it (chrome Storage).
+*/
+const linkRepo = (token, name) => {
+  const AUTHENTICATION_URL = `https://api.github.com/repos/${name}`;
+
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener('readystatechange', function () {
+    if (xhr.readyState === 4) {
+      const res = JSON.parse(xhr.responseText);
+      const bool = linkStatusCode(xhr.status, name);
+      
+      if (xhr.status === 200) {
+        // BUG FIX
+        if (!bool) {
+          // unable to gain access to repo in commit mode. Must switch to hook mode.
+          /* Set mode type to hook */
+          chrome.storage.local.set({ mode_type: 'hook' }, () => {
+            console.log(`Error linking ${name} to GPGen`);
+          });
+          /* Set Repo Hook to NONE */
+          chrome.storage.local.set({ BaekjoonHub_hook: null }, () => {
+            console.log('Defaulted repo hook to NONE');
+          });
+
+          /* Hide accordingly */
+          document.getElementById('hook_mode').style.display = 'inherit';
+          document.getElementById('commit_mode').style.display = 'none';
+        } else {
+          /* Change mode type to commit */
+          /* Save repo url to chrome storage */
+          chrome.storage.local.set({ mode_type: 'commit', repo: res.html_url }, () => {
+            $('#error').hide();
+            $('#success').html(`Successfully linked <a target="blank" href="${res.html_url}">${name}</a> to GPGen. Start <a href="https://www.acmicpc.net/">BOJ</a> now!`);
+            $('#success').show();
+            $('#unlink').show();
+          });
+          /* Set Repo Hook */
+
+          stats = {};
+          stats.version = chrome.runtime.getManifest().version;
+          stats.submission = {};
+          chrome.storage.local.set({ stats });
+
+          chrome.storage.local.set({ BaekjoonHub_hook: res.full_name }, () => {
+            console.log('Successfully set new repo hook');
+            /* Get problems solved count */
+            chrome.storage.local.get('stats', (psolved) => {
+              const { stats } = psolved;
+            });
+          });
+          /* Hide accordingly */
+          document.getElementById('hook_mode').style.display = 'none';
+          document.getElementById('commit_mode').style.display = 'inherit';
+        }
+      }
+    }
+  });
+
+  xhr.open('GET', AUTHENTICATION_URL, true);
+  xhr.setRequestHeader('Authorization', `token ${token}`);
+  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  xhr.send();
+};
+
+const unlinkRepo = () => {
+  /* Set mode type to hook */
+  chrome.storage.local.set({ mode_type: 'hook' }, () => {
+    console.log(`Unlinking repo`);
+  });
+  /* Set Repo Hook to NONE */
+  chrome.storage.local.set({ BaekjoonHub_hook: null }, () => {
+    console.log('Defaulted repo hook to NONE');
+  });
+
+  /* Hide accordingly */
+  document.getElementById('hook_mode').style.display = 'inherit';
+  document.getElementById('commit_mode').style.display = 'none';
+};
+
+
+
 
 
 
@@ -541,7 +546,7 @@ $('#hook_button').on('click', async () => {
       const token = data.BaekjoonHub_token;
       if (token === null || token === undefined) {
         /* Not authorized yet. */
-        $('#error').text('Authorization error - Grant BaekjoonHub access to your GitHub account to continue (launch extension to proceed)');
+        $('#error').text('Authorization error - Grant GPGen access to your GitHub account to continue (launch extension to proceed)');
         $('#error').show();
         $('#success').hide();
       } else if (option() === 'new') {
@@ -551,7 +556,7 @@ $('#hook_button').on('click', async () => {
           const username = data2.BaekjoonHub_username;
           if (!username) {
             /* Improper authorization. */
-            $('#error').text('Improper Authorization error - Grant BaekjoonHub access to your GitHub account to continue (launch extension to proceed)');
+            $('#error').text('Improper Authorization error - Grant GPGen access to your GitHub account to continue (launch extension to proceed)');
             $('#error').show();
             $('#success').hide();
           } else {
@@ -564,13 +569,17 @@ $('#hook_button').on('click', async () => {
     
   }
 });
-let htmlcode;
+
+
 $("#fileupload").on("click", async () => {
-    
+    let htmlcode;
     let repos;
     let token = await getToken();
     let hook = await getHook();
     let username = hook.split("/")[0];
+    let readme = "readme data";
+    let cm = "test1";
+    let cb = null;
     let pinnedList = await getPinnedRepoList(username);
     let commitListLength = 5 - pinnedList.length;
     let commitList = await getCommitRepoList(username, commitListLength, pinnedList);
@@ -578,24 +587,16 @@ $("#fileupload").on("click", async () => {
 
     const test = async() => {
         const repoPromises = await getReposDesc(username, repoNameList);
-        repos = await repoPromises;    
-        
+        repos = await repoPromises;            
     }
 
     test();
+
     await setTimeout(()=>{
         htmlcode = getHTML(username, repos);
-        upload(token, hook, htmlcode, readme, dir, "index.html", cm, cb);
-        upload(token, hook, getCSS(), readme, dir, "style.css", cm, cb);
+        upload(token, hook, htmlcode, readme, "index.html", cm, cb);
+        upload(token, hook, getCSS(), readme, "style.css", cm, cb);
     }, 1000);
-  
-    console.log(htmlcode);
-
-    let readme = "readme data";
-    let dir = "src";
-    let cm = "test1";
-    let cb = function(){console.log("hi")};
-    console.log(token, hook); //hook: username/linked repository
 
     //await upload(token, hook, htmlcode, readme, dir, "index.html", cm, cb);
     //await upload(token, hook, getCSS(), readme, dir, "style.css", cm, cb);
@@ -605,32 +606,14 @@ $("#fileupload").on("click", async () => {
 $("#deploy").on("click", async () => {
     let token = await getToken();
     let hook = await getHook();
-    let code = "<html><head></head></html>";
-    let readme = "readme data";
-    let dir = "src";
-    let fname = "index.html";
-    let cm = "test1";
-    let cb = function(){console.log("hi")};
     publishRepo(token, hook);
 
     $(this).css("color", "green");
 });
 
-$('#unlink a').on('click', () => {
-  unlinkRepo();
-  $('#unlink').hide();
-  $('#success').text('Successfully unlinked your current git repo. Please create/link a new hook.');
-});
-
 $("#geturl").on("click", async () => {
     let token = await getToken();
     let hook = await getHook();
-    let code = "<html><head></head></html>";
-    let readme = "readme data";
-    let dir = "src";
-    let fname = "index.html";
-    let cm = "test1";
-    let cb = function(){console.log("hi")};
     let url = await getPublishUrl(token, hook);
 
     console.log(url);
@@ -638,6 +621,11 @@ $("#geturl").on("click", async () => {
     $("#display_url").attr("href", url);
 });
 
+$('#unlink a').on('click', () => {
+  unlinkRepo();
+  $('#unlink').hide();
+  $('#success').text('Successfully unlinked your current git repo. Please create/link a new hook.');
+});
 
 /* Detect mode type */
 chrome.storage.local.get('mode_type', (data) => {
@@ -649,7 +637,7 @@ chrome.storage.local.get('mode_type', (data) => {
       const token = data2.BaekjoonHub_token;
       if (token === null || token === undefined) {
         /* Not authorized yet. */
-        $('#error').text('Authorization error - Grant BaekjoonHub access to your GitHub account to continue (click BaekjoonHub extension on the top right to proceed)');
+        $('#error').text('Authorization error - Grant GPGen access to your GitHub account to continue (click GPGen extension on the top right to proceed)');
         $('#error').show();
         $('#success').hide();
         /* Hide accordingly */
@@ -661,7 +649,7 @@ chrome.storage.local.get('mode_type', (data) => {
           const hook = repoName.BaekjoonHub_hook;
           if (!hook) {
             /* Not authorized yet. */
-            $('#error').text('Improper Authorization error - Grant BaekjoonHub access to your GitHub account to continue (click BaekjoonHub extension on the top right to proceed)');
+            $('#error').text('Improper Authorization error - Grant GPGen access to your GitHub account to continue (click GPGen extension on the top right to proceed)');
             $('#error').show();
             $('#success').hide();
             /* Hide accordingly */
