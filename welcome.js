@@ -7,7 +7,7 @@ const repositoryName = () => {
 };
 
 /* html and css code uploaded on Github */
-const getHTML = (username, repoList) => {
+const getHTML = (username, repoList, imgurl) => {
     console.log("inside getHTML func");
     console.log(repoList);
     return `<!DOCTYPE html>
@@ -22,11 +22,9 @@ const getHTML = (username, repoList) => {
       </head>
       <body>
         <div id="header_wrap" class="container-sm shadow p-1 float-xl-start bg-light rounded-4">
-          <img src="photo.png" id="profile_photo">
-          <p><i class="bi bi-person-circle"></i>${username}</p>
-          <p><i class="bi bi-building"></i> Undergraduate Student in SKKU</p>
+          <img src="${imgurl}" id="profile_photo">
+          <p><i class="bi bi-person-circle"></i> ${username}</p>
           <p><a class="external text-success" href="https://github.com/${username}" target="_blank"><i class="bi bi-github"></i> My Github</a></p>
-          <p><i class="bi bi-envelope"></i></p>
         </div>
     
         <div class="container-sm float-xl-end mt-5">
@@ -229,7 +227,6 @@ const getRepoDesc = async (token, hook) => {
             const res = JSON.parse(xhr.responseText);
 
             if (xhr.status === 200) {
-                console.log(res.description);
                 return res.description;
             }
         }
@@ -257,8 +254,6 @@ const getPublishUrl = (token, hook) => {
                 const res = JSON.parse(xhr.responseText);
 
                 if (xhr.status === 200) {
-                    console.log(res.html_url);
-
                     resolve(res.html_url);
                 }
             }
@@ -278,6 +273,34 @@ const getPublishUrl = (token, hook) => {
     
 }
 
+const getUserInfo = (token) => {
+    return new Promise((resolve, reject ) => {
+        const AUTHENTICATION_URL = `  https://api.github.com/user`;
+ 
+        const xhr = new XMLHttpRequest();
+        xhr.addEventListener('readystatechange', function () {
+            if (xhr.readyState === 4) {
+                const res = JSON.parse(xhr.responseText);
+
+                if (xhr.status === 200) {
+                    resolve(res);
+                }
+            }
+        });
+
+        stats = {};
+        stats.version = chrome.runtime.getManifest().version;
+        stats.submission = {};
+        chrome.storage.local.set({ stats });
+
+        xhr.open('GET', AUTHENTICATION_URL, true);
+        xhr.setRequestHeader('Authorization', `token ${token}`);
+        xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+
+        xhr.send(null);
+    });
+    
+}
 /* repository list 받아오기  */
 
 //pinned 기준 repository
@@ -574,6 +597,7 @@ $('#hook_button').on('click', async () => {
 $("#fileupload").on("click", async () => {
     let htmlcode;
     let repos;
+    let userinfo;
     let token = await getToken();
     let hook = await getHook();
     let username = hook.split("/")[0];
@@ -581,26 +605,30 @@ $("#fileupload").on("click", async () => {
     let cm = "test1";
     let cb = null;
     let pinnedList = await getPinnedRepoList(username);
-    let commitListLength = 5 - pinnedList.length;
+    let commitListLength = 6 - pinnedList.length;
     let commitList = await getCommitRepoList(username, commitListLength, pinnedList);
     let repoNameList = pinnedList.concat(commitList);
 
+    $("#fileupload").css("color", "green");
+    userinfo = await getUserInfo(token);
+    let imgurl = userinfo.avatar_url;
+
+    
     const test = async() => {
         const repoPromises = await getReposDesc(username, repoNameList);
         repos = await repoPromises;            
     }
 
+
+    await upload(token, hook, getCSS(), readme, "style.css", cm, cb);
+
     test();
 
     await setTimeout(()=>{
-        htmlcode = getHTML(username, repos);
+        htmlcode = getHTML(username, repos, imgurl);
+        console.log(htmlcode);
         upload(token, hook, htmlcode, readme, "index.html", cm, cb);
-        upload(token, hook, getCSS(), readme, "style.css", cm, cb);
     }, 1000);
-
-    //await upload(token, hook, htmlcode, readme, dir, "index.html", cm, cb);
-    //await upload(token, hook, getCSS(), readme, dir, "style.css", cm, cb);
-    //alert("Success to create your profile repo.");
 });
 
 $("#deploy").on("click", async () => {
@@ -608,7 +636,7 @@ $("#deploy").on("click", async () => {
     let hook = await getHook();
     publishRepo(token, hook);
 
-    $(this).css("color", "green");
+    $("#deploy").css("color", "green");
 });
 
 $("#geturl").on("click", async () => {
@@ -619,6 +647,8 @@ $("#geturl").on("click", async () => {
     console.log(url);
     $("#display_url").text(url);
     $("#display_url").attr("href", url);
+    $("#geturl").css("color", "green");
+    $("#notice_delay").text("If you get 404 error code, please wait a minute. Your site is on building.");
 });
 
 $('#unlink a').on('click', () => {
