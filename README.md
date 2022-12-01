@@ -94,9 +94,9 @@ Step 1-3을 차례대로 클릭하면 사용자의 Github repository를 기반�
 
 <ol>
   <li>크롬 > 도구 더보기 > 확장프로그램 > 개발자 모드 > 압축해제된 확장 프로그램을 로드합니다</li>
-  <li>"Authorize with GitHub" 버튼을 누르면 Repository 연동 화면이 표시됩니다.</li>
-  <li>신규 혹은 기존의 Repository를 선택하면 BaekjoonHub과 연동이 완료됩니다.</li>
-  <li>이후 Step 1-3을 차례대로 클릭하여 프로필 웹사이트를 생성합니다.</li>
+  <li>팝업창의 - "Setup Hook" 버튼을 누르면 Repository 연동 화면이 표시됩니다.</li>
+  <li>신규 혹은 기존의 Repository를 선택하면 GPGen과의 연동이 완료됩니다.</li>
+  <li>이후 차례로 step 버튼을 누르면, profile url을 반환합니다.</li>
 </ol>
 <br />
 <br />
