@@ -26,7 +26,8 @@
     "prettier": "^2.7.1"
   },
   "dependencies": {
-    "@octokit/core": "^4.1.0"
+    "@octokit/core": "^4.1.0",
+    "github-calendar": "^2.3.1"
   },
   "jest": {
     "globals": {

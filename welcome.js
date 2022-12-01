@@ -17,6 +17,7 @@ const getHTML = (username, repoList) => {
         <link rel="stylesheet" href="style.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://unpkg.com/github-calendar@latest/dist/github-calendar-responsive.css" />
       </head>
       <body>
         <div id="header_wrap" class="container-sm shadow p-1 float-xl-start bg-light rounded-4">
@@ -29,36 +30,58 @@ const getHTML = (username, repoList) => {
     
         <div class="container-sm float-xl-end mt-5">
           <h2>My Github Portfolio</h2>
-          <h4>${repoList[0]['reponame']}</h4>
-          <p>${repoList[0]['desc']}</p>
 
-          <h4>${repoList[1]['reponame']}</h4>
-          <p>${repoList[1]['desc']}</p>
+          <h3>Github Repository</h3>
+          
+            <div class="m-2">
+                <div class="d-flex w-100 justify-content-between">
+                    <h4 class="mb-2">${repoList[0]['reponame']}</h5>
+                </div>
+                <p class="mb-2">${repoList[0]['desc']}</p>
+            </div>
+            <div class="m-2">
+                <div class="d-flex w-100 justify-content-between">
+                    <h4 class="mb-2">${repoList[1]['reponame']}</h5>
+                </div>
+                <p class="mb-2">${repoList[1]['desc']}</p>
+            </div>
+            <div class="m-2">
+                <div class="d-flex w-100 justify-content-between">
+                    <h4 class="mb-2">${repoList[2]['reponame']}</h5>
+                </div>
+                <p class="mb-2">${repoList[2]['desc']}</p>
+            </div>
+            <div class="m-2">
+                <div class="d-flex w-100 justify-content-between">
+                    <h4 class="mb-2">${repoList[3]['reponame']}</h5>
+                </div>
+                <p class="mb-2">${repoList[3]['desc']}</p>
+            </div>
+            <div class="m-2">
+                <div class="d-flex w-100 justify-content-between">
+                    <h4 class="mb-2">${repoList[4]['reponame']}</h5>
+                </div>
+                <p class="mb-2">${repoList[4]['desc']}</p>
+            </div>
 
-          <h4>${repoList[2]['reponame']}</h4>
-          <p>${repoList[2]['desc']}</p>
+            <br>
+            <div class="calendar">
+                <!-- Loading stuff -->
+                Loading the data just for you.
+            </div>
+            <br>
 
-          <h4>${repoList[3]['reponame']}</h4>
-          <p>${repoList[3]['desc']}</p>
-
-          <h4>${repoList[4]['reponame']}</h4>
-          <p>${repoList[4]['desc']}</p>
-    
-          <br><hr><br>
-    
-          <h2>Interested in</h2>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">Problem Solving</a></li>
-            <li class="list-group-item">Programming Languages</li>
-            <li class="list-group-item">Blockchain</li>
-            <li class="list-group-item">AI</li>
-            <li class="list-group-item"></li>
-          </ul>
-    
     
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js"></script>
       </body>
+      <script>
+            GitHubCalendar(".calendar", "${username}", {
+                    responsive: true,
+                    tooltips: true
+                });
+        </script>
     </html>
     `
 };
@@ -481,6 +504,7 @@ async function getReposDesc(username, repoList){
 }
 
 
+
 /* Check for value of select tag, Get Started disabled by default */
 
 $('#type').on('change', function () {
@@ -565,15 +589,7 @@ $("#fileupload").on("click", async () => {
         upload(token, hook, getCSS(), readme, dir, "style.css", cm, cb);
     }, 1000);
   
-    
-    
     console.log(htmlcode);
-
-    
-
-
-
-    
 
     let readme = "readme data";
     let dir = "src";
