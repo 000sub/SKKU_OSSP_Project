@@ -1,0 +1,36 @@
+#header_wrap{
+    width: 450px;
+    margin: 100px;
+  }
+  
+  #profile_photo {
+    width: 100%;
+    border-radius: 20px;
+    margin-top: 10px;
+  }
+  
+  .container-sm {
+    max-width: 900px!important;
+  }
+
+  .container-sm.mt-5 {
+    margin-right: 80px;
+  }
+  
+  .external{
+    text-decoration: none;
+  }
+
+  .calendar {
+    margin-top : 100px;
+    max-width: 60%;
+    float: left;
+    margin: 0 auto;
+  }
+
+  .m-2 {
+    border: 2px solid #eaeaea;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px 5px #eaeaea;
+  }

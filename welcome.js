@@ -26,6 +26,12 @@ const getHTML = (username, repoList, imgurl) => {
           <p><i class="bi bi-person-circle"></i> ${username}</p>
           <p><a class="external text-success" href="https://github.com/${username}" target="_blank"><i class="bi bi-github"></i> My Github</a></p>
         </div>
+
+        <br><br><br>
+        <div class="calendar">
+            <!-- Loading stuff -->
+            Loading the data just for you.
+        </div>
     
         <div class="container-sm float-xl-end mt-5">
           <h2>My Github Portfolio</h2>
@@ -62,12 +68,6 @@ const getHTML = (username, repoList, imgurl) => {
                 </div>
                 <p class="mb-2">${repoList[4]['desc']}</p>
             </div>
-
-            <br>
-            <div class="calendar">
-                <!-- Loading stuff -->
-                Loading the data just for you.
-            </div>
             <br>
 
     
@@ -87,22 +87,41 @@ const getHTML = (username, repoList, imgurl) => {
 
 const getCSS = () => {
     return `#header_wrap{
-        width: 450px;
-      }
-      
-      #profile_photo {
-        width: 100%;
-        border-radius: 20px;
-        margin-top: 10px;
-      }
-      
-      .container-sm {
-        max-width: 900px!important;
-      }
-      
-      .external{
-        text-decoration: none;
-      }`
+      width: 450px;
+      margin: 100px;
+    }
+    
+    #profile_photo {
+      width: 100%;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+    
+    .container-sm {
+      max-width: 900px!important;
+    }
+  
+    .container-sm.mt-5 {
+      margin-right: 80px;
+    }
+    
+    .external{
+      text-decoration: none;
+    }
+  
+    .calendar {
+      margin-top : 100px;
+      max-width: 60%;
+      float: left;
+      margin: 0 auto;
+    }
+  
+    .m-2 {
+      border: 2px solid #eaeaea;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 5px 5px 5px 5px #eaeaea;
+    }`
 };
 
 /* Status codes for creating of repo */
