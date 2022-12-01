@@ -66,6 +66,7 @@ git clone https://github.com/taeyangk0331/SKKU_OSSP_Project.git
 크롬 > 도구 더보기 > 확장프로그램 > 개발자 모드 > 압축해제된 확장 프로그램을 로드합니다 > SKKU_OSSP_Project 폴더를 선택합니다.
 <br><br>
 <img src="./assets/quickstart_1.PNG" width="300" height="200">
+
 <br>
 다음과 같은 이미지가 보인다면 크롬 브라우저에 정상적으로 연동된 상태입니다.
 <br><br>
