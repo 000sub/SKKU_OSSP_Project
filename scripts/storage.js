@@ -182,7 +182,7 @@ async function updateStatsSHAfromPath(path, sha) {
 function updateObjectDatafromPath(obj, path, data) {
   let current = obj;
   // split path into array and filter out empty strings
-  const pathArray = _swexpertacademyRankRemoveFilter(_baekjoonSpaceRemoverFilter(_programmersRankRemoverFilter(_baekjoonRankRemoverFilter(path))))
+  const pathArray = path
     .split('/')
     .filter((p) => p !== '');
   for (const path of pathArray.slice(0, -1)) {
@@ -206,7 +206,7 @@ async function getStatsSHAfromPath(path) {
 
 function getObjectDatafromPath(obj, path) {
   let current = obj;
-  const pathArray = _swexpertacademyRankRemoveFilter(_baekjoonSpaceRemoverFilter(_programmersRankRemoverFilter(_baekjoonRankRemoverFilter(path))))
+  const pathArray = path
     .split('/')
     .filter((p) => p !== '');
   for (const path of pathArray.slice(0, -1)) {
