@@ -102,7 +102,7 @@ Step 1-3을 차례대로 클릭하면 사용자의 Github repository를 기반�
 <br />
 
 ## 유튜브 설명
-git clone https://github.com/taeyangk0331/SKKU_OSSP_Project.git
+https://www.youtube.com/watch?v=DciHItbnJm8
 
 
 <!--- 링크 및 문서 --->
